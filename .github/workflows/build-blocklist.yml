@@ -1,10 +1,10 @@
-name: BUILD BLOCKLIST
+name: Build blocklist
 
 on:
   push:
     paths:
       - 'custom_blocklist.txt'
-      - '.github/workflows/build_blocklist.yml'
+      - '.github/workflows/build-blocklist.yml'
   schedule:
     - cron: '0 6 * * *'   # daily at 06:00 UTC, picks up master changes
   workflow_dispatch:        # manual trigger button in the UI
@@ -17,13 +17,13 @@ jobs:
     steps:
       - uses: actions/checkout@v4
 
-      - name: FETCH MASTER BLOCKLIST
+      - name: Fetch master blocklist
         run: |
           curl -fsSL \
             https://raw.githubusercontent.com/MVTS-Corp/WinGetAutoUpdate-Blocklist/main/blocklist.txt \
             -o master.txt
 
-      - name: BUILD COMBINED BLOCKLIST
+      - name: Build combined blocklist
         run: |
           {
             cat master.txt
