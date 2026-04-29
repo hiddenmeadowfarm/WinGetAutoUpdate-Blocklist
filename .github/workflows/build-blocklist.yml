@@ -1,4 +1,4 @@
-name: Build blocklist
+name: BUILD BLOCKLIST
 
 on:
   push:
@@ -17,13 +17,13 @@ jobs:
     steps:
       - uses: actions/checkout@v4
 
-      - name: Fetch master blocklist
+      - name: FETCH MASTER BLOCKLIST
         run: |
           curl -fsSL \
             https://raw.githubusercontent.com/MVTS-Corp/WinGetAutoUpdate-Blocklist/main/blocklist.txt \
             -o master.txt
 
-      - name: Build combined blocklist
+      - name: BUILD COMBINED BLOCKLIST
         run: |
           {
             cat master.txt
@@ -31,7 +31,7 @@ jobs:
             cat custom_blocklist.txt
           } | grep -v '^\s*#' | grep -v '^\s*$' > blocklist.txt
 
-      - name: Commit if changed
+      - name: COMMIT IF CHANGE
         run: |
           git config user.name  "github-actions[bot]"
           git config user.email "github-actions[bot]@users.noreply.github.com"
