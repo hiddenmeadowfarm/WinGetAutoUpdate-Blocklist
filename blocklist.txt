@@ -1,0 +1,13 @@
+Microsoft.Edge*
+Mozilla.Firefox*
+Mozilla.Thunderbird
+Mozilla.MaintenanceService
+Mozilla.VPN
+Mobatek.MobaXterm
+Microsoft.AdministrativeTemplates
+Google.Chrome*
+Valve.Steam
+EpicGames.EpicGamesLauncher
+RaspberryPiFoundation.RaspberryPiImager
+Bambulab.Bambustudio
+OBSProject.OBSStudio
