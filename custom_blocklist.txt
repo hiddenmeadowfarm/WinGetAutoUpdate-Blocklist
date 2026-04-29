@@ -1,0 +1,5 @@
+Valve.Steam
+EpicGames.EpicGamesLauncher
+RaspberryPiFoundation.RaspberryPiImager
+Bambulab.Bambustudio
+OBSProject.OBSStudio
