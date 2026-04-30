@@ -3,3 +3,4 @@ EpicGames.EpicGamesLauncher
 RaspberryPiFoundation.RaspberryPiImager
 Bambulab.Bambustudio
 OBSProject.OBSStudio
+Mojang.MinecraftLauncher
