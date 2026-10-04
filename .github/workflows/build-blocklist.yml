@@ -1,7 +1,19 @@
+#
+# build-blocklist.yml
+# 2026-10-04
+# Version: v2.0.0
+#
+# PURPOSE:
+# Builds excluded_apps.txt for WinGet-AutoUpdate (WAU) by merging the
+# MVTS-Corp master list with this repo's custom_blocklist.txt. WAU treats
+# WAU_ListPath as a folder and always requests <WAU_ListPath>/excluded_apps.txt,
+# so the output file name must stay exactly excluded_apps.txt.
+
 name: BUILD BLOCKLIST
 
 on:
   push:
+    branches: [main]
     paths:
       - 'custom_blocklist.txt'
       - '.github/workflows/build-blocklist.yml'
@@ -9,36 +21,88 @@ on:
     - cron: '0 6 * * *'
   workflow_dispatch:
 
+concurrency:
+  group: build-blocklist
+  cancel-in-progress: false
+
 jobs:
   build:
     runs-on: ubuntu-latest
     permissions:
       contents: write
+      actions: write
+    env:
+      MASTER_BASE: https://raw.githubusercontent.com/MVTS-Corp/WinGetAutoUpdate-Blocklist/main
+      OUTPUT: excluded_apps.txt
     steps:
       - uses: actions/checkout@v4
 
+      # Prefer the WAU-native file name, fall back to the legacy name so
+      # either repo can be migrated first without breaking the other.
       - name: FETCH MASTER BLOCKLIST
         run: |
-          curl -fsSL \
-            https://raw.githubusercontent.com/MVTS-Corp/WinGetAutoUpdate-Blocklist/main/blocklist.txt \
-            -o master.txt
+          for name in excluded_apps.txt blocklist.txt; do
+            if curl -fsSL --retry 3 --retry-delay 5 --max-time 30 \
+                 "$MASTER_BASE/$name" -o master.txt; then
+              echo "Fetched master list: $MASTER_BASE/$name"
+              exit 0
+            fi
+          done
+          echo "::error::Could not fetch master list from $MASTER_BASE"
+          exit 1
 
+      # Strip CR, trim whitespace, drop comments and blanks, de-duplicate
+      # (first occurrence wins), then refuse to publish anything that does
+      # not look like a WinGet ID so a bad upstream file cannot reach PCs.
       - name: BUILD COMBINED BLOCKLIST
         run: |
-          {
-            cat master.txt
-            echo ""
-            cat custom_blocklist.txt
-          } | grep -v '^\s*#' | grep -v '^\s*$' > blocklist.txt
+          normalize() {
+            tr -d '\r' < "$1" \
+              | sed -e 's/^[[:space:]]*//' -e 's/[[:space:]]*$//' \
+              | grep -v -e '^#' -e '^$' || true
+          }
+          normalize master.txt > master.clean
+          normalize custom_blocklist.txt > custom.clean
+
+          if [ ! -s master.clean ]; then
+            echo "::error::Master list is empty after normalization, refusing to publish"
+            exit 1
+          fi
+
+          cat master.clean custom.clean | awk '!seen[$0]++' > "$OUTPUT.new"
+
+          bad=$(grep -v -E '^[A-Za-z0-9][A-Za-z0-9._+*-]*$' "$OUTPUT.new" || true)
+          if [ -n "$bad" ]; then
+            echo "::error::Invalid entries found, refusing to publish:"
+            echo "$bad"
+            exit 1
+          fi
+
+          mv "$OUTPUT.new" "$OUTPUT"
+          echo "Built $OUTPUT with $(wc -l < "$OUTPUT") entries:"
+          cat "$OUTPUT"
 
       - name: COMMIT IF CHANGE
         run: |
+          rm -f master.txt master.clean custom.clean
           git config user.name  "github-actions[bot]"
           git config user.email "github-actions[bot]@users.noreply.github.com"
-          git add blocklist.txt
+          git add "$OUTPUT"
           if ! git diff --cached --quiet; then
-            git commit -m "Rebuild blocklist $(date -u +'%Y-%m-%d')"
+            git commit -m "Rebuild $OUTPUT $(date -u +'%Y-%m-%d')"
             git push
           else
             echo "No changes to commit."
           fi
+
+      # GitHub disables scheduled workflows after 60 days with no repo
+      # activity. Re-enabling through the API resets that timer without
+      # needing a dummy commit.
+      - name: KEEP WORKFLOW ENABLED
+        if: github.event_name == 'schedule'
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: |
+          gh api -X PUT \
+            "repos/${{ github.repository }}/actions/workflows/build-blocklist.yml/enable" \
+            || echo "::warning::Keepalive enable call failed"
