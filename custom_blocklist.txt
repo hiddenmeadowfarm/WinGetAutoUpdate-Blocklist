@@ -1,6 +1,14 @@
+# HMF-only WAU exclusions, merged with the MVTS-Corp master list into
+# excluded_apps.txt. Comment and blank lines are stripped by the build.
+# Every entry needs a reason so it can be re-evaluated later.
+
+# Game launchers: auto-update forces a client update while gaming,
+# which ends sessions and causes other issues.
 Valve.Steam
 EpicGames.EpicGamesLauncher
-RaspberryPiFoundation.RaspberryPiImager
+Mojang.MinecraftLauncher
+
+# Auto-update reset the app's configuration, requiring full setup
+# from scratch after every update.
 Bambulab.Bambustudio
 OBSProject.OBSStudio
-Mojang.MinecraftLauncher
