@@ -8,7 +8,6 @@ Microsoft.AdministrativeTemplates
 Google.Chrome*
 Valve.Steam
 EpicGames.EpicGamesLauncher
-RaspberryPiFoundation.RaspberryPiImager
+Mojang.MinecraftLauncher
 Bambulab.Bambustudio
 OBSProject.OBSStudio
-Mojang.MinecraftLauncher

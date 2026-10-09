@@ -1,4 +1,4 @@
-README.md v2.0.0 (Last Rev: 2026-10-04)
+README.md v2.1.0 (Last Rev: 2026-10-09)
 
 # WinGetAutoUpdate-Blocklist (Hidden Meadow Farm)
 
@@ -21,6 +21,30 @@ https://raw.githubusercontent.com/HiddenMeadowFarm/WinGetAutoUpdate-Blocklist/ma
 | `.github/workflows/build-blocklist.yml` | Merges the master list and `custom_blocklist.txt` into `excluded_apps.txt`. Runs on push to `custom_blocklist.txt` or the workflow, daily at 06:00 UTC, and on manual dispatch. |
 
 Master list source: `MVTS-Corp/WinGetAutoUpdate-Blocklist`, file `excluded_apps.txt`, falling back to `blocklist.txt` if that does not exist.
+
+### Why Each App Is Blocked
+
+Every entry is here because WAU auto-updating it caused a problem. Reasons for master list entries are recorded here for reference; the MVTS-Corp repo owns those entries.
+
+| Entry | Source | Reason |
+|-------|--------|--------|
+| `Microsoft.Edge*` | Master | Updated by other means (Active Directory, Microsoft 365, RMM). |
+| `Mozilla.Firefox*` | Master | Updated by other means (Active Directory, RMM). |
+| `Google.Chrome*` | Master | Updated by other means (Active Directory, RMM). |
+| `Mozilla.Thunderbird` | Master | Unknown. Possibly user workflow disruption. |
+| `Mozilla.MaintenanceService` | Master | WAU repeatedly tried and failed to update it, creating log noise (from memory, unconfirmed). It has no package in the winget source today. |
+| `Microsoft.AdministrativeTemplates` | Master | Same as Maintenance Service: repeated failed updates and log noise. |
+| `Mozilla.VPN` | Master | Not yet recorded. |
+| `Mobatek.MobaXterm` | Master | Licensing. WAU installed the Home edition over Professional, downgrading the license. Updated manually a few times a year. |
+| `Valve.Steam` | HMF | Forced a client update while gaming, ending sessions and causing other issues. |
+| `EpicGames.EpicGamesLauncher` | HMF | Same as Steam. |
+| `Mojang.MinecraftLauncher` | HMF | Same as Steam. |
+| `OBSProject.OBSStudio` | HMF | Each update reset the app's configuration, requiring full setup from scratch. |
+| `Bambulab.Bambustudio` | HMF | Same as OBS Studio. |
+
+Removed on 2026-10-09: `RaspberryPiFoundation.RaspberryPiImager`, as a trial to see whether auto-updating it causes any issue. If it does, add it back to `custom_blocklist.txt` with the reason.
+
+Known wildcard side effects (master list): `Microsoft.Edge*` also blocks `Microsoft.EdgeWebView2Runtime` and `Microsoft.EdgeDriver`; `Google.Chrome*` also blocks `Google.ChromeRemoteDesktopHost`. Raised with MVTS-Corp.
 
 ## Quick Start
 

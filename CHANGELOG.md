@@ -2,6 +2,14 @@
 
 All notable changes to this repo are documented here. Newest first.
 
+## [2.1.0] - 2026-10-09
+
+### Removed
+- `RaspberryPiFoundation.RaspberryPiImager` from `custom_blocklist.txt`, as a trial to see whether auto-updating it causes an issue.
+
+### Added
+- Reason comments for every entry in `custom_blocklist.txt`, and a "Why Each App Is Blocked" table in README.md covering master and HMF entries.
+
 ## [2.0.0] - 2026-10-04
 
 ### Fixed
